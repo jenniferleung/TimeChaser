@@ -1252,7 +1252,7 @@
 	      event.preventDefault();
 	      var reg = /^\d{1,5}$/g;
 	      if (reg.test(this.state.inputValue)) {
-	        (0, _nodeFetch2.default)('http://api.translink.ca/RTTIAPI/V1/stops/' + this.state.inputValue + '?apiKey=' + _key2.default['TRANSLINK_API_KEY'] + '&lat=49.187706&long=-122.850060', { headers: { accpet: 'application/JSON' } }).then(function (res) {
+	        (0, _nodeFetch2.default)('https://api.translink.ca/RTTIAPI/V1/stops/' + this.state.inputValue + '?apiKey=' + _key2.default['TRANSLINK_API_KEY'], { headers: { accpet: 'application/JSON' } }).then(function (res) {
 	          console.log(res.json());
 	          return res.json();
 	        });
