@@ -1,79 +1,100 @@
-import React, { Component, PropTypes } from 'react';
-import { connect } from 'react-redux';
+import React from 'react';
+import ReactDOM from 'react-dom';
+import Nav from 'react-bootstrap/lib/Nav';
+import NavItem from 'react-bootstrap/lib/NavItem';
+import Navbar from 'react-bootstrap/lib/Navbar';
+import Button from 'react-bootstrap/lib/Button';
+import FormGroup from 'react-bootstrap/lib/FormGroup';
+import InputGroup from 'react-bootstrap/lib/InputGroup';
+import FormControl from 'react-bootstrap/lib/FormControl';
+import Glyphicon from 'react-bootstrap/lib/Glyphicon';
+// import SimpleMap from './Container.js';
+import fetch from 'node-fetch';
+import keys from '../../key.js';
 
-// Import Style
-import styles from './App.css';
+const navList = [
+  { name: 'Bookmarks', url: '#'},
+  { name: 'Contact', url: 'huiquanlu@gmail.com'}
+]
 
-// Import Components
-import Helmet from 'react-helmet';
-import DevTools from './components/DevTools';
-import Header from './components/Header/Header';
-import Footer from './components/Footer/Footer';
+class MyNavBar extends React.Component {
+  render() {
+    return(
+      <Navbar  style={{marginBottom:'0px'}}>
+        <Navbar.Header>
+          <Navbar.Brand>
+            <a href="#">Chaser</a>
+          </Navbar.Brand>
+        </Navbar.Header>
+        <Nav bsStyle="tabs" activeKey="1">
+          {this.props.list.map((e, i) =>
+              (
+                <NavItem key={i} href={e.url}>
+                  {e.name}
+                </NavItem>
+              )
+          )}
+        </Nav>
+      </Navbar>);
+  }
+}
 
-// Import Actions
-import { toggleAddPost } from './AppActions';
-import { switchLanguage } from '../../modules/Intl/IntlActions';
-
-export class App extends Component {
-  constructor(props) {
+class SearchBar extends React.Component {
+  constructor(props){
     super(props);
-    this.state = { isMounted: false };
+    this.handleChange = this.handleChange.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+    this.state = {
+      inputValue: ''
+    };
   }
-
-  componentDidMount() {
-    this.setState({isMounted: true}); // eslint-disable-line
+  handleChange(event) {
+    this.setState({
+      inputValue: event.target.value
+    });
   }
+  handleSubmit(event) {
+    event.preventDefault();
+    let reg = /^\d{1,5}$/g;
+    if(reg.test(this.state.inputValue)){
+      fetch('http://api.translink.ca/RTTIAPI/V1/stops?apiKey='+keys['TRANSLINK_API_KEY']+'&lat=49.187706&long=-122.850060', {headers: {accpet: 'application/JSON'}})
+        .then( (res) =>{
+          console.log(res.json());
+          return res.json();
+        })
+    } else {
+      alert('Invalid input');
+    }
+  }
+  render() {
+    const style = {
+      position: 'absolute',
+      top: '60px',
+      left: '20%',
+      width: '60%',
+      zIndex: '99'
+    }
+    return(
+      <form onSubmit={this.handleSubmit}>
+        <InputGroup style={style}>
+          <FormControl type="text" placeholder="Enter bus # or code" onChange={this.handleChange} />
+          <InputGroup.Addon>
+            <Glyphicon glyph="search" />
+          </InputGroup.Addon>
+        </InputGroup>
+      </form>
+    )
+  }
+}
 
-  toggleAddPostSection = () => {
-    this.props.dispatch(toggleAddPost());
-  };
-
+export default class App extends React.Component {
   render() {
     return (
       <div>
-        {this.state.isMounted && !window.devToolsExtension && process.env.NODE_ENV === 'development' && <DevTools />}
-        <div>
-          <Helmet
-            title="MERN Starter - Blog App"
-            titleTemplate="%s - Blog App"
-            meta={[
-              { charset: 'utf-8' },
-              {
-                'http-equiv': 'X-UA-Compatible',
-                content: 'IE=edge',
-              },
-              {
-                name: 'viewport',
-                content: 'width=device-width, initial-scale=1',
-              },
-            ]}
-          />
-          <Header
-            switchLanguage={lang => this.props.dispatch(switchLanguage(lang))}
-            intl={this.props.intl}
-            toggleAddPost={this.toggleAddPostSection}
-          />
-          <div className={styles.container}>
-            {this.props.children}
-          </div>
-          <Footer />
+        <MyNavBar list={navList} />
+        <div style={{textAlign: 'center',width:'100%'}}>
+          <SearchBar />
         </div>
-      </div>
-    );
+      </div>);
   }
 }
-
-App.propTypes = {
-  children: PropTypes.object.isRequired,
-  dispatch: PropTypes.func.isRequired,
-  intl: PropTypes.object.isRequired,
-};
-
-// Retrieve data from store as props
-function mapStateToProps(store) {
-  return {
-    intl: store.intl,
-  };
-}
-
-export default connect(mapStateToProps)(App);
