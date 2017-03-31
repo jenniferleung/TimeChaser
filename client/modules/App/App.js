@@ -57,7 +57,7 @@ class SearchBar extends React.Component {
     event.preventDefault();
     let reg = /^\d{1,5}$/g;
     if(reg.test(this.state.inputValue)){
-      fetch('https://api.translink.ca/RTTIAPI/V1/stops/'+this.state.inputValue+'?apiKey='+keys['TRANSLINK_API_KEY'], {headers: {accpet: 'application/JSON'}})
+      fetch('https://api.translink.ca/RTTIAPI/V1/stops/'+this.state.inputValue+'?apiKey='+keys['TRANSLINK_API_KEY'], {headers: {accpet: 'application/JSON', credentials:'include'}})
         .then( (res) =>{
           console.log(res.json());
           return res.json();
